@@ -1,0 +1,7 @@
+.svn/
+Intermediate/
+Binaries/
+.vs/
+Saved/
+DerivedDataCache/
+*.log
