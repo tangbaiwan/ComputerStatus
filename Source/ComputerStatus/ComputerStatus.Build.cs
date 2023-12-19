@@ -1,4 +1,4 @@
-// Some copyright should be here...
+// Copyright 2023 Device. All Rights Reserved.
 
 using UnrealBuildTool;
 
@@ -26,7 +26,8 @@ public class ComputerStatus : ModuleRules
 			new string[]
 			{
 				"Core",
-				"Sockets","Networking",
+				"Sockets",
+				"Networking",
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
@@ -37,11 +38,10 @@ public class ComputerStatus : ModuleRules
 			{
 				"CoreUObject",
 				"Engine",
-				"Slate",
-				"SlateCore",
-				"ApplicationCore",
+                "Slate",
+                "SlateCore",
+                "ApplicationCore",
 				"RHI",
-				// ... add private dependencies that you statically link with here ...	
 			}
 			);
 		

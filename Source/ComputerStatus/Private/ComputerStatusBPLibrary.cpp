@@ -1,6 +1,7 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+// Copyright 2023 Device. All Rights Reserved.
 
 #include "ComputerStatusBPLibrary.h"
+#include "Engine.h"
 #include "ComputerStatus.h"
 #include "Runtime/Core/Public/GenericPlatform/GenericPlatformDriver.h"
 
@@ -9,6 +10,16 @@
 #include "HAL/PlatformApplicationMisc.h"
 #include "Runtime/Networking/Public/Networking.h"
 
+#if PLATFORM_WINDOWS
+#include "Windows/AllowWindowsPlatformTypes.h"
+#include "Windows/PreWindowsApi.h"
+#include <iostream>
+#include <windows.h>
+#include <Iphlpapi.h>
+#include "Windows/PostWindowsApi.h"
+#include "Windows/HideWindowsPlatformTypes.h"
+#pragma comment(lib, "IPHLPAPI.lib")
+#endif
 UComputerStatusBPLibrary::UComputerStatusBPLibrary(const FObjectInitializer& ObjectInitializer)
 : Super(ObjectInitializer)
 {
@@ -27,9 +38,41 @@ FString UComputerStatusBPLibrary::GetLocalIPAddress()
 	return IPAddressStr;
 }
 
-FString UComputerStatusBPLibrary::GetMac()
+FString UComputerStatusBPLibrary::GetMac(FString& mac, FString& LocalIP)
 {
-	return "";
+	IP_ADAPTER_INFO AdapterInfo[16];  
+	ULONG buflen = sizeof(AdapterInfo);  
+	FString MacName;
+	IP_ADAPTER_INFO* pAdapterInfo = new IP_ADAPTER_INFO[buflen];
+	if (GetAdaptersInfo(pAdapterInfo, &buflen) == NO_ERROR) {
+		IP_ADAPTER_INFO* pAdapter = pAdapterInfo;
+		while (pAdapter) {
+			char* buffers;
+			buffers = pAdapter->AdapterName;
+			MacName= FString(buffers);
+			std::string a;
+			for (UINT i = 0; i < pAdapter->AddressLength; i++) {
+				char buffer[3];
+				sprintf_s(buffer, "%02X", static_cast<int>(pAdapter->Address[i]));
+				a += buffer;
+				if (i < pAdapter->AddressLength - 1) {
+					a += "-";
+				}
+			}
+
+			mac = FString(a.c_str());
+
+			IP_ADDR_STRING* ipAddress = &(pAdapter->IpAddressList);
+
+			while (ipAddress) {
+				LocalIP = (ipAddress->IpAddress.String);
+				ipAddress = ipAddress->Next;
+			}
+			pAdapter = pAdapter->Next;
+		}
+	}
+	delete[] pAdapterInfo;
+	return MacName;
 }
 
 void UComputerStatusBPLibrary::GetGPUInfo(FString& DeviceDescription, FString& Provider, FString& DriverVersion, FString& DriverDate, FString& RHIName)
@@ -159,24 +202,20 @@ void UComputerStatusBPLibrary::CreateEditorNotification(const FText Message, con
 	NotificationItem->ExpireAndFadeout();
 }
 
-void UComputerStatusBPLibrary::ClearLog()
+FString UComputerStatusBPLibrary::EncryptVersion(const FString& Content, const FString& key)
 {
- 	/*if (TSharedPtr<SOutputLog> OutputLogPinned = OutputLog.Pin())
- 	{
- 		if (OutputLogPinned->CanClearLog())
- 		{
- 			OutputLogPinned->OnClearLog();
- 		}
- 	}
- 
- 	if (TSharedPtr<SOutputLog> OutputLogPinned = OutputLogDrawer.Pin())
- 	{
- 		if (OutputLogPinned->CanClearLog())
- 		{
- 			OutputLogPinned->OnClearLog();
- 		}
- 	}*/
+	FString encryptedVersion = Content;
+	const size_t keyLength = key.Len();
+
+	for (size_t i = 0; i < Content.Len(); ++i)
+	{
+		encryptedVersion[i] ^= key[i % keyLength];
+	}
+
+	return encryptedVersion;
 }
+
+
 
 int64 UComputerStatusBPLibrary::GetCyclesTime()
 {

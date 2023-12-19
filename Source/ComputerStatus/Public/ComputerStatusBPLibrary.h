@@ -1,4 +1,4 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+// Copyright 2023 Device. All Rights Reserved.
 
 #pragma once
 
@@ -33,7 +33,7 @@ public:
 
 	/*Get Local Mac Address*/
 	UFUNCTION(BlueprintPure, Category = "BXS|Windows")
-		static FString GetMac();
+		static FString GetMac(FString& mac, FString& LocalIP);
 
 	/*Get Local GPU Info*/
 	UFUNCTION(BlueprintPure, Category = "BXS|Windows|GPU")
@@ -44,16 +44,16 @@ public:
 		static void GetCPUInfo(FString& CPUBrand);
 
 	/*Get Keyboard  Clip Info*/
-	UFUNCTION(BlueprintPure, Category = "BXS|Windows|Clipboard", Meta = (DisplayName = "Clipboard Get", Keywords = "paste retrieve obtain access"))
+	UFUNCTION(BlueprintPure, Category = "BXS|Windows|Clipboard", Meta = (DisplayName = " Get Clipboard"))
 		static FString GetClipboard();
 
 
 	/*Get Window Bounds*/
-	UFUNCTION(BlueprintCallable, Category = "BXS|Windows", Meta = (DisplayName = "Get Window Bounds", Keywords = "size location position"))
+	UFUNCTION(BlueprintPure, Category = "BXS|Windows", Meta = (DisplayName = "Get Window Bounds", Keywords = "Get Window Bounds"))
 		static void GetWindowBounds(bool& Success, int32& X, int32& Y, int32& Width, int32& Height);
 
 	/*Get Mouse  Info*/
-	UFUNCTION(BlueprintCallable, Category = "BXS|Windows", Meta = (DisplayName = "Get Mouse Position"))
+	UFUNCTION(BlueprintPure, Category = "BXS|Windows", Meta = (DisplayName = "Get Mouse Position"))
 		static void GetMousePosition(bool& Success, int32& X, int32& Y);
 
 	//
@@ -71,9 +71,9 @@ public:
 			const bool useSuccessFailIcons = true, const bool useLargeFont = true,
 			const bool fireAndForget = true, const bool allowThrottleWhenFrameRateIsLow = false);
 
-	/*Clear Editor Log*/
+	/*Encrypt Version, Like GetHashMD5*/
 	UFUNCTION(BlueprintCallable, Category = "BXS|PIE")
-		static void ClearLog();
+		static 	FString EncryptVersion(const FString& Content, const FString& key);
 
 	//
 	//
